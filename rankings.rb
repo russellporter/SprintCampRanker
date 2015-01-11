@@ -1,3 +1,17 @@
+#!/usr/bin/env ruby
+
+# How to use
+# 1. Download this script and save it in its own folder
+# 2. Install ruby 1.9.3. This works on Windows: http://rubyinstaller.org/downloads/
+# 3. Open a command prompt with Ruby 
+#    (if using the Windows RubyInstaller, search your Windows 
+#     applications for "Start Command Prompt with Ruby")
+# 4. Install sexmachine (for distinguishing genders): gem install sexmachine
+# 5. "cd" to the folder where this script is saved
+# 6. Edit the rankings.rb config so it uses your event config CSV
+# 7. Run the script: ruby rankings.rb
+# 8. Based on the output, specify people with ambiguous gender in the config
+
 require 'sexmachine'
 require 'csv'
 require 'time'
@@ -31,9 +45,8 @@ class Ranking
     }
     results_a = results_a.sort_by { |item| item[:result] }.reverse
     max_results = results_a.length
-    result_cap = 2
-    if max_results > result_cap
-      max_results = result_cap
+    if max_results > MAX_COUNTED_EVENTS
+      max_results = MAX_COUNTED_EVENTS
     end
 
     if (max_results == 0)
@@ -86,7 +99,7 @@ class ResultRanker
     else
       gender = @detector.get_gender(first_name)
       if (!([:male, :female].include? gender))
-        puts "Gender of " + name + " is ambiguous. Assuming male."
+        puts "ERROR: Gender of " + name + " is ambiguous. Assuming male."
         gender = :male
       end
     end
@@ -151,7 +164,7 @@ class ResultRanker
         ranking.add_result(percent_time, event_name, minutes_t.to_s + ":" + "%02d" % seconds_t)
       elsif (status == '0')
         ranking = ranking_for_competitor(name, gender)
-        ranking.add_result(0, event_name, "Short course")
+        ranking.add_result(0, event_name, "Short")
       end
     end 
   end
@@ -221,21 +234,36 @@ class ResultRanker
   end
 end
 
+# CONFIGURATION
+# This is the number of event results we include in the results
+# If someone goes to more than this many events at sprint camp, we pick their top results
+MAX_COUNTED_EVENTS = 4
 ranker = ResultRanker.new
+
+# If you get errors about ambiguous gender, specify the person's name here in the correct category
+# Also, if the auto-gender detection is incorrect, you can override by adding the person's name here
 men = ['Jiri Krejci', 'Chris Benn', 'Zbynek Cernin', 'Cameron Devine', 'Gudni Karl', 'Oyvind Naess', 'Chris Bullock', 'Roan McMillan', 'Nevin French']
 women = ['Carol Ross', 'Silken Kleer', 'Abra McNair']
 ranker.add_gender_exceptions(men, women)
+# Add each event at sprint camp
+# 
 ranker.add_event("#1: Coal Harbour", "coal harbour.csv", '1')
 ranker.add_event("#2: Mundy Park", "Mundy Park.csv", '1')
 ranker.add_event("#3: Hume Park Farsta", "farsta.csv", '118')
-File.open('sprint_camp_2014_rankings.html', 'w') do |file|
+
+email = "support@whyjustrun.ca"
+
+# This outputs the HTML file
+File.open('sprint_camp_rankings.html', 'w') do |file|
   file.puts '<html><head>'
   file.puts '<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">'
   file.puts '</head><body><div class="container">'
   file.puts '<header class="page-header">'
-  file.puts "<h1>Sprint Camp 2014 Rankings</h1>"
+  file.puts "<h1>Sprint Camp " + Time.now.year.to_s + " Rankings</h1>"
   file.puts '</header>'
-  file.puts '<p class="bg-warning" style="padding: 15px; max-width: 450px"><span class="glyphicon glyphicon-question-sign"></span> See a problem? Email <a href="mailto:contact@russellporter.com">contact@russellporter.com</a></p>'
+  file.puts '<p class="bg-warning" style="padding: 15px; max-width: 450px">'
+  file.puts '<span class="glyphicon glyphicon-question-sign"></span> See a problem? Email <a href="' + email + '">' + email + '</a>'
+  file.puts '</p>'
   file.puts '<h2>Men</h2>'
   ranker.build_rankings(:male, file)
   file.puts '<h2>Women</h2>'
