@@ -236,8 +236,9 @@ end
 
 # CONFIGURATION
 # This is the number of event results we include in the results
-# If someone goes to more than this many events at sprint camp, we pick their top results
+# If someone goes to more than this many events at sprint camp, we pick their top n results
 MAX_COUNTED_EVENTS = 4
+
 ranker = ResultRanker.new
 
 # If you get errors about ambiguous gender, specify the person's name here in the correct category
@@ -246,7 +247,9 @@ men = ['Jiri Krejci', 'Chris Benn', 'Zbynek Cernin', 'Cameron Devine', 'Gudni Ka
 women = ['Carol Ross', 'Silken Kleer', 'Abra McNair']
 ranker.add_gender_exceptions(men, women)
 # Add each event at sprint camp
-# 
+# The number "1" is the klass number of the participants we want to rank
+# For example, at sprint camp 2014, there were long and short classes
+# Look in your CSV file or in MeOS to determine the klass number of the event you want to rank.
 ranker.add_event("#1: Coal Harbour", "coal harbour.csv", '1')
 ranker.add_event("#2: Mundy Park", "Mundy Park.csv", '1')
 ranker.add_event("#3: Hume Park Farsta", "farsta.csv", '118')
