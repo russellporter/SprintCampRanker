@@ -8,7 +8,7 @@
 #     applications for "Start Command Prompt with Ruby")
 # 4. Install sexmachine (for distinguishing genders): gem install sexmachine
 # 5. "cd" to the folder where this script is saved
-# 6. Edit the rankings.rb config so it uses your event config CSV
+# 6. Edit the rankings.rb config so it uses your event CSV
 # 7. Run the script: ruby rankings.rb
 # 8. Based on the output, specify people with ambiguous gender in the config
 
